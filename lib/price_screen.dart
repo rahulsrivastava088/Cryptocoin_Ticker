@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'coin_data.dart';
+import 'package:flutter/cupertino.dart';
+import 'dart:io' show Platform;
 
 class PriceScreen extends StatefulWidget {
   @override
@@ -9,8 +11,7 @@ class PriceScreen extends StatefulWidget {
 class _PriceScreenState extends State<PriceScreen> {
 
   String selectedCurrency = 'INR';
-
-  List<DropdownMenuItem<String>> getDropDownItems() {
+  DropdownButton<String> androidPicker() {
     List<DropdownMenuItem<String>> currencies = [];
     for (String currency in currenciesList) {
       currencies.add(
@@ -20,7 +21,29 @@ class _PriceScreenState extends State<PriceScreen> {
         ),
       );
     }
-    return currencies;
+    return DropdownButton<String>(
+      value: selectedCurrency,
+      onChanged: (value) {
+        setState(() {
+          selectedCurrency = value ?? 'USD';
+        });
+      },
+      items: currencies,
+    );
+  }
+
+  CupertinoPicker iosPicker() {
+    List<Widget> currencies = [];
+    for (String currency in currenciesList) {
+      currencies.add(Text(currency));
+    }
+    return CupertinoPicker(
+      onSelectedItemChanged: (int value) {
+        print (currenciesList[value]);
+      },
+      itemExtent: 32.0,
+      children: currencies,
+    );
   }
 
   @override
@@ -32,7 +55,7 @@ class _PriceScreenState extends State<PriceScreen> {
       body: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
+        children: [
           Padding(
             padding: EdgeInsets.fromLTRB(18.0, 18.0, 18.0, 0),
             child: Card(
@@ -55,22 +78,16 @@ class _PriceScreenState extends State<PriceScreen> {
             ),
           ),
           Container(
-            height: 150.0,
-            alignment: Alignment.center,
-            padding: EdgeInsets.only(bottom: 30.0),
-            color: Colors.lightBlue,
-            child: DropdownButton<String>(
-              value: selectedCurrency,
-              onChanged: (value) {
-                setState(() {
-                  selectedCurrency = value ?? 'USD';
-                });
-              },
-              items: getDropDownItems(),
-            ),
+              height: 150.0,
+              alignment: Alignment.center,
+              padding: EdgeInsets.only(bottom: 30.0),
+              color: Colors.lightBlue,
+              child: Platform.isIOS ? iosPicker() : androidPicker(),
           ),
         ],
       ),
     );
   }
 }
+
+
